@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 import com.noglassesmode.app.R
 import com.noglassesmode.app.core.FontScaleManager
 import com.noglassesmode.app.data.UserPrefs
+import java.util.Locale
 import kotlin.math.round
 
 class SettingsActivity : ComponentActivity() {
@@ -100,7 +101,7 @@ class SettingsActivity : ComponentActivity() {
         return round(v * 100f) / 100f
     }
 
-    private fun format(v: Float) = String.format("%.2f", v)
+    private fun format(v: Float) = String.format(Locale.US, "%.2f", v)
 
     private fun toast(msg: String) =
         android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
