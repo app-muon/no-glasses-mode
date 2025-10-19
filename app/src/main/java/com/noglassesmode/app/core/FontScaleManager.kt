@@ -7,7 +7,7 @@ import android.provider.Settings
 import androidx.core.net.toUri
 
 object FontScaleManager {
-    private const val EPS = 0.02f
+    private const val EPS = 0.05f
 
     fun canWriteSettings(ctx: Context): Boolean =
         Settings.System.canWrite(ctx)

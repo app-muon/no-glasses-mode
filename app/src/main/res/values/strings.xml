@@ -1,26 +1,18 @@
 <resources>
-    <string name="app_name">NoGlassesMode</string>
-    <string name="pick_your_two_text_sizes_tap_the_quick_settings_tile_to_toggle_instantly">Pick your two text sizes. Tap the Quick Settings tile to toggle instantly.</string>
-    <string name="system_write_permission">System write permission: ❌</string>
+    <string name="app_name">No Glasses</string>
+    <string name="system_write_permission">System write permission: </string>
     <string name="grant_permission">Grant permission</string>
-    <string name="normal_size_0_85_1_15">Normal size (0.85–1.15)</string>
-    <string name="_1_00">1.00</string>
-    <string name="big_size_normal_0_10_up_to_2_00">Big size (≥ Normal + 0.10 up to 2.00)</string>
-    <string name="_1_30">1.30</string>
-    <string name="save">Save</string>
-    <string name="preview">Preview</string>
-    <string name="normal_preview">Normal preview</string>
-    <string name="big_preview">Big preview</string>
-    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile (pull down ▸ Edit tiles ▸ drag “No Glasses”).</string>
-    <string name="normal_preview_x">Normal preview (x%1$s)</string>
-    <string name="big_preview_x">Big preview (x%1$s)</string>
-    <string name="pick_big_size_toggle_with_qs_tile">Pick your big text size. Tap the Quick Settings tile to toggle instantly.</string>
-    <string name="label_baseline">Baseline (current): x%1$.2f</string>
-    <string name="label_big">Big size</string>
+    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile (pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>
+    <string name="pick_big_size_toggle_with_qs_tile">Pick your big text size. Then you will be able to tap the Quick Settings tile to toggle instantly between your normal size and the big size.</string>
     <string name="tile_label_big">Big</string>
     <string name="tile_label_normal">Normal</string>
     <string name="tile_label_prefix">No Glasses: %1$s</string>
     <string name="toast_big">Big text</string>
     <string name="toast_normal">Normal text</string>
     <string name="toast_failed">Couldn\'t change text size</string>
+    <string name="step_1_permissions">Step 1 — Permissions</string>
+    <string name="step_2_font_size">Step 2 — Font size</string>
+    <string name="step_3_add_tile">Step 3 — Add the tile</string>
+    <string name="label_normal">Normal</string>
+    <string name="label_big">Big</string>
 </resources>

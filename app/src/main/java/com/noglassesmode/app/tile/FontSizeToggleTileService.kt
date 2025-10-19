@@ -28,39 +28,52 @@ class FontSizeToggleTileService : TileService() {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                // ✅ new API: PendingIntent path (no warning)
+                // API 34+: PendingIntent overload
                 val pi = PendingIntent.getActivity(
                     this, 0, intent,
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
                 startActivityAndCollapse(pi)
             } else {
-                // ✅ safely suppress deprecation only for older Androids
                 @Suppress("DEPRECATION")
                 startActivityAndCollapse(intent)
             }
             return
         }
 
-
         val cr = contentResolver
         val current = FontScaleManager.getCurrentScale(cr)
-        val big = prefs.bigScale
+        val savedBaseline = prefs.baselineScale
+        val savedBig = prefs.bigAppliedScale
+        val multiplier = 1f + (prefs.bigPercent / 100f)
 
-        val target = if (FontScaleManager.approxEqual(current, big)) {
-            // Going from Big → Baseline
-            (prefs.baselineScale ?: 1.00f)
+// Are we currently in Big? Compare to the exact Big we applied last time.
+        val inBigNow = savedBig != null && FontScaleManager.approxEqual(current, savedBig)
+
+        val (target, goingToBig) = if (inBigNow && savedBaseline != null) {
+            // Big -> Normal
+            prefs.baselineScale = null
+            prefs.bigAppliedScale = null
+            savedBaseline to false
         } else {
-            // Going to Big: snapshot current as new baseline
+            // Normal -> Big: snapshot current as baseline, compute desired Big
+            val desiredBig = current * multiplier
             prefs.baselineScale = current
-            big
+            desiredBig to true
         }
 
         val ok = FontScaleManager.applyScale(cr, target)
 
         if (ok) {
-            val toBig = FontScaleManager.approxEqual(target, big)
-            showToast(if (toBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
+            if (goingToBig) {
+                // Read back the actual applied value (OEMs may clamp/quantize)
+                val applied = FontScaleManager.getCurrentScale(cr)
+                prefs.bigAppliedScale = applied
+            } else {
+                // Returned to normal: ensure Big marker cleared
+                prefs.bigAppliedScale = null
+            }
+            showToast(if (goingToBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
             refreshTile()
         } else {
             showToast(getString(R.string.toast_failed))
@@ -69,21 +82,23 @@ class FontSizeToggleTileService : TileService() {
 
     private fun refreshTile() {
         val tile = qsTile ?: return
-        val cr = contentResolver
-        val current = FontScaleManager.getCurrentScale(cr)
-        val big = prefs.bigScale
+        val hasPerm = FontScaleManager.canWriteSettings(this)
 
-        val stateLabel = if (FontScaleManager.approxEqual(current, big)) {
-            getString(R.string.tile_label_big)
-        } else {
-            getString(R.string.tile_label_normal)
+        // Are we currently in Big? Compare to the exact Big we applied last time.
+        val current = FontScaleManager.getCurrentScale(contentResolver)
+        val savedBig = prefs.bigAppliedScale
+        val isBig = hasPerm && savedBig != null && FontScaleManager.approxEqual(current, savedBig)
+
+        tile.state = when {
+            !hasPerm -> Tile.STATE_UNAVAILABLE
+            isBig    -> Tile.STATE_ACTIVE
+            else     -> Tile.STATE_INACTIVE
         }
 
-        tile.state = if (FontScaleManager.canWriteSettings(this)) Tile.STATE_ACTIVE else Tile.STATE_UNAVAILABLE
-        tile.label = getString(R.string.tile_label_prefix, stateLabel)
+        // Fixed label — always "No glasses"
+        tile.label = getString(R.string.app_name)
         tile.updateTile()
     }
-
 
 
     private fun showToast(msg: String) =

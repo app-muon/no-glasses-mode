@@ -1,102 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fillViewport="true"
-    android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingStart="20dp"
+    android:paddingTop="?attr/actionBarSize"
+    android:paddingEnd="20dp"
+    android:paddingBottom="24dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <!-- Title -->
+        <!-- App title -->
         <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
-        <!-- Intro copy -->
+        <!-- Short intro -->
         <TextView
-            android:text="@string/pick_big_size_toggle_with_qs_tile"
-            android:layout_marginTop="8dp"
+            android:id="@+id/subtitle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/pick_big_size_toggle_with_qs_tile"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-        <!-- Permission status -->
+        <!-- ───────── STEP 1: PERMISSIONS ───────── -->
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/step_1_permissions"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/tvStatus"
-            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:text="@string/system_write_permission"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textAppearance="?attr/textAppearanceLabelLarge" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGrant"
-            android:layout_marginTop="8dp"
-            android:text="@string/grant_permission"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/grant_permission" />
 
-        <!-- Baseline (read-only) -->
+        <!-- ───────── STEP 2: FONT SIZE ───────── -->
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp" />
+
         <TextView
-            android:id="@+id/tvBaseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/label_baseline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:text="@string/step_2_font_size"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textStyle="bold" />
 
-        <!-- Big size input -->
-        <TextView
-            android:layout_marginTop="12dp"
-            android:text="@string/label_big"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/etBig"
-            android:hint="@string/_1_30"
+        <!-- Percentage increase control -->
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderBigPercent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:autofillHints="none" />
+            android:stepSize="5"
+            android:value="30"
+            android:valueFrom="0"
+            android:valueTo="200" />     <!-- default +30% -->
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_marginTop="12dp"
-            android:text="@string/save"
+        <!-- Two live labels under the slider -->
+        <LinearLayout
+            android:id="@+id/sizePreviewRow"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:weightSum="1">
 
-        <!-- Divider -->
-        <View
-            android:layout_marginTop="16dp"
-            android:background="#DDDDDD"
+            <TextView
+                android:id="@+id/previewNormalText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/label_normal"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:gravity="start" />
+
+            <TextView
+                android:id="@+id/previewBigText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/label_big"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- ───────── STEP 3: ADD TILE ───────── -->
+        <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
-            android:layout_height="1dp" />
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp" />
 
-        <!-- Preview -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textStyle="bold"
-            android:text="@string/preview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:text="@string/step_3_add_tile"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/previewBig"
-            android:layout_marginTop="8dp"
-            android:text="@string/big_preview"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <!-- Tip -->
-        <TextView
-            android:layout_marginTop="24dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:alpha="0.9"
             android:text="@string/tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+
     </LinearLayout>
 </ScrollView>
