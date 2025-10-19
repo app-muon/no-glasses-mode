@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">No Glasses</string>
+    <string name="tile_label_short">No Glasses</string>
     <string name="system_write_permission">System write permission: </string>
     <string name="grant_permission">Grant permission</string>
     <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile (pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>

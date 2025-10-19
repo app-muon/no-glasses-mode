@@ -83,23 +83,20 @@ class FontSizeToggleTileService : TileService() {
     private fun refreshTile() {
         val tile = qsTile ?: return
         val hasPerm = FontScaleManager.canWriteSettings(this)
-
-        // Are we currently in Big? Compare to the exact Big we applied last time.
         val current = FontScaleManager.getCurrentScale(contentResolver)
         val savedBig = prefs.bigAppliedScale
         val isBig = hasPerm && savedBig != null && FontScaleManager.approxEqual(current, savedBig)
 
         tile.state = when {
             !hasPerm -> Tile.STATE_UNAVAILABLE
-            isBig    -> Tile.STATE_ACTIVE
-            else     -> Tile.STATE_INACTIVE
+            isBig -> Tile.STATE_ACTIVE
+            else -> Tile.STATE_INACTIVE
         }
 
-        // Fixed label — always "No glasses"
-        tile.label = getString(R.string.app_name)
+        // Keep label short — avoids marquee scroll when tile is not yet pinned
+        tile.label = getString(R.string.tile_label_short) // e.g. "No Glasses"
         tile.updateTile()
     }
-
 
     private fun showToast(msg: String) =
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()

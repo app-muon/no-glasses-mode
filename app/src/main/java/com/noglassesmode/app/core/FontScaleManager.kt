@@ -27,16 +27,4 @@ object FontScaleManager {
 
     fun approxEqual(a: Float, b: Float) = kotlin.math.abs(a - b) <= EPS
 
-    fun pickTarget(current: Float, normal: Float, big: Float): Float {
-        return when {
-            approxEqual(current, normal) -> big
-            approxEqual(current, big)    -> normal
-            else -> {
-                // If user changed scale elsewhere, jump to the nearer preset
-                val dN = kotlin.math.abs(current - normal)
-                val dB = kotlin.math.abs(current - big)
-                if (dN <= dB) big else normal
-            }
-        }
-    }
 }
