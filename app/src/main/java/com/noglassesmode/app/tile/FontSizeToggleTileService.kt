@@ -44,24 +44,26 @@ class FontSizeToggleTileService : TileService() {
 
 
         val cr = contentResolver
-
-// validate once, then read presets
-        prefs.validateAndSwapIfNeeded()
-        val normal = prefs.normalScale
+        val current = FontScaleManager.getCurrentScale(cr)
         val big = prefs.bigScale
 
-// read current from system
-        val current = FontScaleManager.getCurrentScale(cr)
+        val target = if (FontScaleManager.approxEqual(current, big)) {
+            // Going from Big → Baseline
+            (prefs.baselineScale ?: 1.00f)
+        } else {
+            // Going to Big: snapshot current as new baseline
+            prefs.baselineScale = current
+            big
+        }
 
-// decide + apply
-        val target = FontScaleManager.pickTarget(current, normal, big)
         val ok = FontScaleManager.applyScale(cr, target)
 
         if (ok) {
-            showToast(if (FontScaleManager.approxEqual(target, big)) "Big text" else "Normal text")
+            val toBig = FontScaleManager.approxEqual(target, big)
+            showToast(if (toBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
             refreshTile()
         } else {
-            showToast("Couldn't change text size")
+            showToast(getString(R.string.toast_failed))
         }
     }
 
@@ -77,12 +79,7 @@ class FontSizeToggleTileService : TileService() {
             getString(R.string.tile_label_normal)
         }
 
-        tile.state = if (FontScaleManager.canWriteSettings(this)) {
-            Tile.STATE_ACTIVE
-        } else {
-            Tile.STATE_UNAVAILABLE
-        }
-
+        tile.state = if (FontScaleManager.canWriteSettings(this)) Tile.STATE_ACTIVE else Tile.STATE_UNAVAILABLE
         tile.label = getString(R.string.tile_label_prefix, stateLabel)
         tile.updateTile()
     }

@@ -12,9 +12,15 @@
     <string name="normal_preview">Normal preview</string>
     <string name="big_preview">Big preview</string>
     <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile (pull down ▸ Edit tiles ▸ drag “No Glasses”).</string>
+    <string name="normal_preview_x">Normal preview (x%1$s)</string>
+    <string name="big_preview_x">Big preview (x%1$s)</string>
+    <string name="pick_big_size_toggle_with_qs_tile">Pick your big text size. Tap the Quick Settings tile to toggle instantly.</string>
+    <string name="label_baseline">Baseline (current): x%1$.2f</string>
+    <string name="label_big">Big size</string>
     <string name="tile_label_big">Big</string>
     <string name="tile_label_normal">Normal</string>
     <string name="tile_label_prefix">No Glasses: %1$s</string>
-    <string name="normal_preview_x">Normal preview (x%1$s)</string>
-    <string name="big_preview_x">Big preview (x%1$s)</string>
+    <string name="toast_big">Big text</string>
+    <string name="toast_normal">Normal text</string>
+    <string name="toast_failed">Couldn\'t change text size</string>
 </resources>
