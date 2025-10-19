@@ -12,13 +12,6 @@ object FontScaleManager {
     fun canWriteSettings(ctx: Context): Boolean =
         Settings.System.canWrite(ctx)
 
-    fun openManageWriteSettings(ctx: Context) {
-        val i = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-        i.data = "package:${ctx.packageName}".toUri()
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        ctx.startActivity(i)
-    }
-
     fun getCurrentScale(cr: ContentResolver): Float =
         try { Settings.System.getFloat(cr, Settings.System.FONT_SCALE) } catch (_: Throwable) { 1.0f }
 
