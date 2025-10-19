@@ -70,7 +70,6 @@ class FontSizeToggleTileService : TileService() {
         val cr = contentResolver
         val current = FontScaleManager.getCurrentScale(cr)
         val big = prefs.bigScale
-        val normal = prefs.normalScale
 
         val stateLabel = if (FontScaleManager.approxEqual(current, big)) {
             getString(R.string.tile_label_big)
@@ -85,9 +84,9 @@ class FontSizeToggleTileService : TileService() {
         }
 
         tile.label = getString(R.string.tile_label_prefix, stateLabel)
-        // tile.icon = Icon.createWithResource(this, R.drawable.ic_ngm_tile)
         tile.updateTile()
     }
+
 
 
     private fun showToast(msg: String) =
