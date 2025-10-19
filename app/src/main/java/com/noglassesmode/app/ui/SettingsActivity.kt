@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.TypedValue
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -36,14 +37,16 @@ class SettingsActivity : ComponentActivity() {
         sliderBigPercent = findViewById(R.id.sliderBigPercent)
 
         // ---- Init values ----
+        // ---- Init values ----
+        sliderBigPercent.value = prefs.bigPercent
+
+// now update previews based on the stable baseline
         sliderBigPercent.value = prefs.bigPercent
         updateComputedLabel()
         updatePermissionUi()
 
-        // ---- Listeners ----
+// ---- Listeners ----
         btnGrant.setOnClickListener { startActivity(intentForPermission(this)) }
-
-        // Save instantly when user slides
         sliderBigPercent.addOnChangeListener { _, value, _ ->
             prefs.bigPercent = value
             updateComputedLabel()
@@ -55,6 +58,7 @@ class SettingsActivity : ComponentActivity() {
         updateComputedLabel()
         updatePermissionUi()
     }
+
 
     // ---- Helpers ----
 
@@ -68,13 +72,39 @@ class SettingsActivity : ComponentActivity() {
     }
 
     private fun updateComputedLabel() {
-        val baseline = FontScaleManager.getCurrentScale(contentResolver)
+        val base = stableBaseline()                               // your stable “Normal”
         val multiplier = 1f + (sliderBigPercent.value / 100f)
-        val abs = baseline * multiplier
+        val big = base * multiplier
 
-        // Scale previews
-        previewNormalText.textSize = 14f * baseline
-        previewBigText.textSize = 14f * abs
+        // Render previews independent of current system font scale
+        setPreviewSizePx(previewNormalText, 14f, base)
+        setPreviewSizePx(previewBigText,    14f, big)
+    }
+
+    private fun stableBaseline(): Float {
+        val m = 1f + (sliderBigPercent.value / 100f)
+
+        // 1) Prefer the saved baseline (set when switching to Big)
+        prefs.baselineScale?.let { return it }
+
+        val current = FontScaleManager.getCurrentScale(contentResolver)
+
+        // 2) If we know the exact Big that was applied and we're currently at that value,
+        //    reconstruct baseline by dividing by the multiplier
+        val bigApplied = prefs.bigAppliedScale
+        if (bigApplied != null && FontScaleManager.approxEqual(current, bigApplied)) {
+            return bigApplied / m
+        }
+
+        // 3) Fallback: assume current is the baseline
+        return current
+    }
+
+
+    private fun setPreviewSizePx(tv: TextView, spAtScale1: Float, scale: Float) {
+        val dm = resources.displayMetrics
+        val px = spAtScale1 * scale * dm.density   // use density, NOT scaledDensity
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, px)
     }
 
     companion object {

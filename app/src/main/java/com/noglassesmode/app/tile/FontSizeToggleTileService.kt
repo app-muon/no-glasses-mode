@@ -19,8 +19,11 @@ class FontSizeToggleTileService : TileService() {
         super.onStartListening()
         refreshTile()
     }
-
+    private var lastClickAt = 0L
     override fun onClick() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastClickAt < 600) return
+        lastClickAt = now
         super.onClick()
 
         if (!FontScaleManager.canWriteSettings(this)) {
@@ -47,8 +50,13 @@ class FontSizeToggleTileService : TileService() {
         val savedBig = prefs.bigAppliedScale
         val multiplier = 1f + (prefs.bigPercent / 100f)
 
-// Are we currently in Big? Compare to the exact Big we applied last time.
-        val inBigNow = savedBig != null && FontScaleManager.approxEqual(current, savedBig)
+// Detect Big mode robustly
+        val expectedBig = savedBaseline?.let { it * multiplier }
+        val inBigNow = when {
+            savedBig != null -> FontScaleManager.approxEqual(current, savedBig)
+            expectedBig != null -> FontScaleManager.approxEqual(current, expectedBig)
+            else -> false
+        }
 
         val (target, goingToBig) = if (inBigNow && savedBaseline != null) {
             // Big -> Normal
@@ -84,19 +92,27 @@ class FontSizeToggleTileService : TileService() {
         val tile = qsTile ?: return
         val hasPerm = FontScaleManager.canWriteSettings(this)
         val current = FontScaleManager.getCurrentScale(contentResolver)
+        val savedBaseline = prefs.baselineScale
         val savedBig = prefs.bigAppliedScale
-        val isBig = hasPerm && savedBig != null && FontScaleManager.approxEqual(current, savedBig)
+        val multiplier = 1f + (prefs.bigPercent / 100f)
+
+        val expectedBig = savedBaseline?.let { it * multiplier }
+        val isBig = hasPerm && when {
+            savedBig != null -> FontScaleManager.approxEqual(current, savedBig)
+            expectedBig != null -> FontScaleManager.approxEqual(current, expectedBig)
+            else -> false
+        }
 
         tile.state = when {
             !hasPerm -> Tile.STATE_UNAVAILABLE
-            isBig -> Tile.STATE_ACTIVE
-            else -> Tile.STATE_INACTIVE
+            isBig    -> Tile.STATE_ACTIVE
+            else     -> Tile.STATE_INACTIVE
         }
 
-        // Keep label short — avoids marquee scroll when tile is not yet pinned
-        tile.label = getString(R.string.tile_label_short) // e.g. "No Glasses"
+        tile.label = getString(R.string.tile_label_short) // "No Glasses"
         tile.updateTile()
     }
+
 
     private fun showToast(msg: String) =
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
