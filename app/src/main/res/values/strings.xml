@@ -3,17 +3,27 @@
     <string name="tile_label_short">No Glasses</string>
     <string name="system_write_permission">System write permission: </string>
     <string name="grant_permission">Grant permission</string>
-    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile (pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>
+    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Tip: Add the Quick Settings tile \n(pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>
     <string name="pick_big_size_toggle_with_qs_tile">Pick your big text size. Then you will be able to tap the Quick Settings tile to toggle instantly between your normal size and the big size.</string>
-    <string name="tile_label_big">Big</string>
-    <string name="tile_label_normal">Normal</string>
+    <string name="label_normal">This size</string>
+    <string name="label_big">Becomes this</string>
     <string name="tile_label_prefix">No Glasses: %1$s</string>
     <string name="toast_big">Big text</string>
     <string name="toast_normal">Normal text</string>
     <string name="toast_failed">Couldn\'t change text size</string>
     <string name="step_1_permissions">Step 1 — Permissions</string>
-    <string name="step_2_font_size">Step 2 — Font size</string>
+    <string name="step_2_font_size">Step 2 — Choose font size</string>
     <string name="step_3_add_tile">Step 3 — Add the tile</string>
-    <string name="label_normal">Normal</string>
-    <string name="label_big">Big</string>
+    <string name="about_title">About No Glasses</string>
+    <string name="about_body">
+    <![CDATA[
+    No Glasses lets you toggle between your normal text size and a larger one, via a Quick Settings tile.
+
+    \n\nIt is free, ad-free, and open source. No data is shared with us, advertisers, or any third parties—only the usual information with Google.
+
+    \n\nProject page: https://app-muon.github.io//noglassesmode
+    \n\nEmail: muonappdevelopment@gmail.com
+    ]]>
+</string>
+    <string name="got_it">Got it</string>
 </resources>

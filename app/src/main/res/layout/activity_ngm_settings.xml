@@ -1,140 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:fillViewport="true"
-    android:paddingStart="20dp"
-    android:paddingTop="?attr/actionBarSize"
-    android:paddingEnd="20dp"
-    android:paddingBottom="24dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="20dp"
+        android:paddingTop="?attr/actionBarSize"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
 
-        <!-- App title -->
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
-
-        <!-- Short intro -->
-        <TextView
-            android:id="@+id/subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/pick_big_size_toggle_with_qs_tile"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-        <!-- ───────── STEP 1: PERMISSIONS ───────── -->
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/step_1_permissions"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/system_write_permission"
-            android:textAppearance="?attr/textAppearanceLabelLarge" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGrant"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/grant_permission" />
-
-        <!-- ───────── STEP 2: FONT SIZE ───────── -->
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/step_2_font_size"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textStyle="bold" />
-
-        <!-- Percentage increase control -->
-        <com.google.android.material.slider.Slider
-            android:id="@+id/sliderBigPercent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stepSize="5"
-            android:value="30"
-            android:valueFrom="0"
-            android:valueTo="200" />     <!-- default +30% -->
-
-        <!-- Two live labels under the slider -->
         <LinearLayout
-            android:id="@+id/sizePreviewRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:weightSum="1">
+            android:orientation="vertical">
+
+            <!-- App title -->
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+            <!-- Short intro -->
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/pick_big_size_toggle_with_qs_tile"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- ───────── STEP 1: PERMISSIONS ───────── -->
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp" />
 
             <TextView
-                android:id="@+id/previewNormalText"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="@string/label_normal"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:gravity="start" />
+                android:layout_marginTop="16dp"
+                android:text="@string/step_1_permissions"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/previewBigText"
-                android:layout_width="0dp"
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="@string/label_big"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:gravity="end" />
+                android:layout_marginTop="6dp"
+                android:text="@string/system_write_permission"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGrant"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/grant_permission" />
+
+            <!-- ───────── STEP 2: FONT SIZE ───────── -->
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/step_2_font_size"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textStyle="bold" />
+
+            <!-- Percentage increase control -->
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderBigPercent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stepSize="5"
+                android:value="30"
+                android:valueFrom="0"
+                android:valueTo="200" />     <!-- default +30% -->
+
+            <!-- Two live labels under the slider -->
+            <LinearLayout
+                android:id="@+id/sizePreviewRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/previewNormalText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/label_normal"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <TextView
+                    android:id="@+id/previewBigText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="@string/label_big"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+            </LinearLayout>
+
+
+            <!-- ───────── STEP 3: ADD TILE ───────── -->
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/step_3_add_tile"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:alpha="0.9"
+                android:text="@string/tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
         </LinearLayout>
+    </ScrollView>
+    <!-- Floating “?” button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAbout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="56dp"
+        android:backgroundTint="?attr/colorPrimaryContainer"
+        android:contentDescription="@string/about_title"
+        android:src="@drawable/ic_outline_help_24"
+        android:tint="?attr/colorOnPrimaryContainer" />
 
-        <!-- ───────── STEP 3: ADD TILE ───────── -->
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/step_3_add_tile"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:alpha="0.9"
-            android:text="@string/tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses"
-            android:textAppearance="?attr/textAppearanceBodySmall" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

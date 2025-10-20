@@ -1,5 +1,7 @@
 package com.noglassesmode.app.ui
-
+import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -51,6 +53,9 @@ class SettingsActivity : ComponentActivity() {
             prefs.bigPercent = value
             updateComputedLabel()
         }
+
+        findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAbout)
+            .setOnClickListener { showAboutDialog() }
     }
 
     override fun onResume() {
@@ -77,8 +82,8 @@ class SettingsActivity : ComponentActivity() {
         val big = base * multiplier
 
         // Render previews independent of current system font scale
-        setPreviewSizePx(previewNormalText, 14f, base)
-        setPreviewSizePx(previewBigText,    14f, big)
+        setPreviewSizePx(previewNormalText, 18f, base)
+        setPreviewSizePx(previewBigText,    18f, big)
     }
 
     private fun stableBaseline(): Float {
@@ -107,6 +112,18 @@ class SettingsActivity : ComponentActivity() {
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, px)
     }
 
+    private fun showAboutDialog() {
+        val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null, false)
+        val tv = v.findViewById<TextView>(R.id.tvAbout)
+        tv.text = getString(R.string.about_body)
+        tv.movementMethod = LinkMovementMethod.getInstance() // make links clickable
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.about_title)
+            .setView(v)
+            .setPositiveButton(R.string.got_it, null)
+            .show()
+    }
     companion object {
         fun intentForPermission(ctx: Context): Intent =
             Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
