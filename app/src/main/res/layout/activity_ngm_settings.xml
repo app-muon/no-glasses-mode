@@ -24,7 +24,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textStyle="bold"/>
 
             <!-- Short intro -->
             <TextView
@@ -139,6 +140,28 @@
                 android:alpha="0.9"
                 android:text="@string/tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses"
                 android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:id="@+id/setupCompleteMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/setup_complete_message"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/done"
+                style="?attr/materialButtonOutlinedStyle" />
 
         </LinearLayout>
     </ScrollView>

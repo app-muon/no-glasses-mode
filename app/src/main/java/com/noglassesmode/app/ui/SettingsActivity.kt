@@ -29,6 +29,7 @@ class SettingsActivity : ComponentActivity() {
     private lateinit var sliderBigPercent: Slider
     private lateinit var previewNormalText: TextView
     private lateinit var previewBigText: TextView
+    private lateinit var btnDone: Button
     private var awaitingPermission = false
     private val permHandler = Handler(Looper.getMainLooper())
     private var permChecks = 0
@@ -45,7 +46,8 @@ class SettingsActivity : ComponentActivity() {
         previewBigText = findViewById(R.id.previewBigText)
         btnGrant = findViewById(R.id.btnGrant)
         sliderBigPercent = findViewById(R.id.sliderBigPercent)
-
+        btnDone = findViewById(R.id.btnDone)
+        btnDone.setOnClickListener { finish() }
         // ---- Init values ----
         sliderBigPercent.value = prefs.bigPercent
         updateComputedLabel()
@@ -71,12 +73,6 @@ class SettingsActivity : ComponentActivity() {
         updateComputedLabel()
         updatePermissionUi()
 
-        // Always nudge the tile to refresh visuals
-        TileService.requestListeningState(
-            this,
-            ComponentName(this, com.noglassesmode.app.tile.FontSizeToggleTileService::class.java)
-        )
-
         if (awaitingPermission) {
             permChecks = 0
             pollPermission.run()
@@ -88,11 +84,13 @@ class SettingsActivity : ComponentActivity() {
     private fun updatePermissionUi() {
         val granted = Settings.System.canWrite(applicationContext)
         val step1Title = findViewById<TextView>(R.id.step1Title) // add this id in XML
-
+        val completeMsg = findViewById<TextView>(R.id.setupCompleteMessage)
         if (granted) {
             // Hide status + button
             tvStatus.isVisible = false
             btnGrant.isVisible = false
+            completeMsg.isVisible = true
+            btnDone.isVisible = true
 
             // Change Step 1 title to confirm success
             step1Title.text = getString(R.string.step_1_permissions_done)

@@ -4,7 +4,11 @@
     <string name="system_write_permission">System write permission: </string>
     <string name="grant_permission">Grant permission</string>
     <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Add the Quick Settings tile \n(pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>
-    <string name="pick_big_size_toggle_with_qs_tile">Pick your big text size. Then you will be able to tap the Quick Settings tile to toggle instantly between your normal size and the big size.</string>
+    <string name="pick_big_size_toggle_with_qs_tile">
+        No Glasses adds a button in your phone’s pull-down panel to quickly switch between normal and large text.
+
+        \n\nYou can click it when you need things bigger, for example you don\'t have your glasses.
+    </string>
     <string name="label_normal">This size</string>
     <string name="label_big">Becomes this</string>
     <string name="tile_label_prefix">No Glasses: %1$s</string>
@@ -13,7 +17,7 @@
     <string name="toast_failed">Couldn\'t change text size</string>
     <string name="step_1_permissions">Step 1 — Permissions</string>
     <string name="step_1_permissions_done">Step 1 – Permissions ✅</string>
-    <string name="step_2_font_size">Step 2 — Choose font size</string>
+    <string name="step_2_font_size">Step 2 — Choose font scaling</string>
     <string name="step_3_add_tile">Step 3 — Position your tile</string>
     <string name="about_title">About No Glasses</string>
     <string name="about_body">
@@ -26,5 +30,9 @@
     \n\nEmail: muonappdevelopment@gmail.com
     ]]>
 </string>
+    <string name="setup_complete_message">
+    Then you are all set! You can now use the “No Glasses” button from your pull-down menu.
+</string>
+    <string name="done">Done</string>
     <string name="got_it">Got it</string>
 </resources>
