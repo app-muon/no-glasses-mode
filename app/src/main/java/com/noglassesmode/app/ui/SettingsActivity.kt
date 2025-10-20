@@ -1,17 +1,22 @@
 package com.noglassesmode.app.ui
-import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.service.quicksettings.TileService
+import android.text.method.LinkMovementMethod
 import android.util.TypedValue
-import android.view.View
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.noglassesmode.app.R
 import com.noglassesmode.app.core.FontScaleManager
@@ -24,6 +29,9 @@ class SettingsActivity : ComponentActivity() {
     private lateinit var sliderBigPercent: Slider
     private lateinit var previewNormalText: TextView
     private lateinit var previewBigText: TextView
+    private var awaitingPermission = false
+    private val permHandler = Handler(Looper.getMainLooper())
+    private var permChecks = 0
 
     private val prefs by lazy { UserPrefs(this) }
 
@@ -39,16 +47,16 @@ class SettingsActivity : ComponentActivity() {
         sliderBigPercent = findViewById(R.id.sliderBigPercent)
 
         // ---- Init values ----
-        // ---- Init values ----
-        sliderBigPercent.value = prefs.bigPercent
-
-// now update previews based on the stable baseline
         sliderBigPercent.value = prefs.bigPercent
         updateComputedLabel()
         updatePermissionUi()
 
 // ---- Listeners ----
-        btnGrant.setOnClickListener { startActivity(intentForPermission(this)) }
+        btnGrant.setOnClickListener {
+            awaitingPermission = true
+            startActivity(intentForPermission(this))
+        }
+
         sliderBigPercent.addOnChangeListener { _, value, _ ->
             prefs.bigPercent = value
             updateComputedLabel()
@@ -62,18 +70,40 @@ class SettingsActivity : ComponentActivity() {
         super.onResume()
         updateComputedLabel()
         updatePermissionUi()
-    }
 
+        // Always nudge the tile to refresh visuals
+        TileService.requestListeningState(
+            this,
+            ComponentName(this, com.noglassesmode.app.tile.FontSizeToggleTileService::class.java)
+        )
+
+        if (awaitingPermission) {
+            permChecks = 0
+            pollPermission.run()
+        }
+    }
 
     // ---- Helpers ----
 
     private fun updatePermissionUi() {
-        val granted = FontScaleManager.canWriteSettings(this)
-        tvStatus.text = if (granted)
-            getString(R.string.system_write_permission) + " ✅"
-        else
-            getString(R.string.system_write_permission) + " ❌"
-        btnGrant.visibility = if (granted) View.GONE else View.VISIBLE
+        val granted = Settings.System.canWrite(applicationContext)
+        val step1Title = findViewById<TextView>(R.id.step1Title) // add this id in XML
+
+        if (granted) {
+            // Hide status + button
+            tvStatus.isVisible = false
+            btnGrant.isVisible = false
+
+            // Change Step 1 title to confirm success
+            step1Title.text = getString(R.string.step_1_permissions_done)
+        } else {
+            // Show status + button
+            tvStatus.isVisible = true
+            btnGrant.isVisible = true
+
+            // Reset title
+            step1Title.text = getString(R.string.step_1_permissions)
+        }
     }
 
     private fun updateComputedLabel() {
@@ -83,7 +113,7 @@ class SettingsActivity : ComponentActivity() {
 
         // Render previews independent of current system font scale
         setPreviewSizePx(previewNormalText, 18f, base)
-        setPreviewSizePx(previewBigText,    18f, big)
+        setPreviewSizePx(previewBigText, 18f, big)
     }
 
     private fun stableBaseline(): Float {
@@ -124,10 +154,35 @@ class SettingsActivity : ComponentActivity() {
             .setPositiveButton(R.string.got_it, null)
             .show()
     }
+
+    private val pollPermission = object : Runnable {
+        override fun run() {
+            val granted = Settings.System.canWrite(applicationContext)
+            if (granted) {
+                updatePermissionUi()
+                TileService.requestListeningState(
+                    this@SettingsActivity,
+                    ComponentName(
+                        this@SettingsActivity,
+                        com.noglassesmode.app.tile.FontSizeToggleTileService::class.java
+                    )
+                )
+                awaitingPermission = false
+                permChecks = 0
+            } else if (permChecks++ < 15) {           // ~15 * 120ms ≈ 1.8s max
+                permHandler.postDelayed(this, 120)
+            } else {
+                // give up; leave UI showing not granted
+                awaitingPermission = false
+                permChecks = 0
+            }
+        }
+    }
+
     companion object {
         fun intentForPermission(ctx: Context): Intent =
             Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-                data = Uri.parse("package:${ctx.packageName}")
+                data = "package:${ctx.packageName}".toUri()
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
     }

@@ -26,8 +26,8 @@
         <!-- Quick Settings Tile -->
         <service
             android:name=".tile.FontSizeToggleTileService"
-            android:label="No Glasses"
-            android:icon="@drawable/ic_ngm_tile"
+            android:label="@string/tile_label_short"
+            android:icon="@drawable/ic_glasses_tile"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>
