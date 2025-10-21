@@ -1,29 +1,47 @@
-# Android Studio / IntelliJ
-*.iml
-.idea/
+# Gradle files
 .gradle/
+build/
+
+# Local configuration files
 local.properties
 
-# Build outputs
-/build/
-*/build/
-captures/
-.externalNativeBuild/
-.cxx/
+# Android Studio and IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+*.ipr
 
-# OS files
+# Android Studio cache
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/gradle.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/httpRequests/
+
+# Keystore files
+*.jks
+*.keystore
+gradle.properties
+
+# Log files
+*.log
+
+# OS-specific files
 .DS_Store
 Thumbs.db
 
-# Keystore & release artifacts
-*.jks
-*.keystore
-*.aab
+# Build directories
+app/build/
+*/build/
+
+# Miscellaneous
 *.apk
+*.ap_
+*.dex
+*.class
 
-# Log and cache files
-*.log
-*.tmp
-
-# Misc
-*.orig
+# Android NDK
+ndkBuild/
