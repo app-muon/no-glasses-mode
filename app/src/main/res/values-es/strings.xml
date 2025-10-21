@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Sin Gafas</string>
+    <string name="tile_label_short">Sin Gafas</string>
+    <string name="system_write_permission">Permiso para modificar ajustes del sistema: </string>
+    <string name="grant_permission">Conceder permiso</string>
+
+    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">
+Desliza dos veces hacia abajo desde la parte superior de la pantalla para abrir todos los ajustes rápidos.\n
+Toca el icono ✎ (Editar) o “Editar mosaicos”.\n
+Busca el mosaico “Sin Gafas” y arrástralo a la zona activa.\n
+Ahora aparecerá en tu panel de ajustes rápidos.
+    </string>
+
+    <string name="pick_big_size_toggle_with_qs_tile">
+Sin Gafas añade un botón en el panel desplegable de tu teléfono para cambiar rápidamente entre texto normal y texto grande.
+
+\n\nPuedes usarlo cuando necesites ver el texto más grande, por ejemplo si no tienes tus gafas.
+    </string>
+
+    <string name="label_normal">Este tamaño</string>
+    <string name="label_big">Se vuelve así</string>
+    <string name="toast_big">Texto grande</string>
+    <string name="toast_normal">Texto normal</string>
+    <string name="toast_failed">No se pudo cambiar el tamaño del texto</string>
+
+    <string name="step_1_permissions">Paso 1 — Permisos</string>
+    <string name="step_1_permissions_done">Paso 1 — Permisos ✅</string>
+    <string name="step_2_font_size">Paso 2 — Ajusta el aumento del texto</string>
+    <string name="step_3_add_tile">Paso 3 — Añade o coloca el mosaico</string>
+
+    <string name="about_title">Acerca de Sin Gafas</string>
+    <string name="about_body">
+    <![CDATA[
+Sin Gafas te permite alternar entre tu tamaño de texto normal y uno más grande mediante un mosaico de ajustes rápidos.
+
+\n\nEs gratuito, sin anuncios y de código abierto. No se comparte ningún dato con nosotros, anunciantes ni terceros; solo la información habitual con Google.
+
+\n\nPágina del proyecto: https://app-muon.github.io/noglassesmode
+\n\nCorreo: muonappdevelopment@gmail.com
+    ]]>
+    </string>
+
+    <string name="setup_complete_message">
+¡Listo! Ahora puedes usar el botón “Sin Gafas” desde el menú desplegable.
+    </string>
+
+    <string name="done">Hecho</string>
+    <string name="got_it">Entendido</string>
+</resources>
