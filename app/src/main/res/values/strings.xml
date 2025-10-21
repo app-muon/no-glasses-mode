@@ -3,7 +3,12 @@
     <string name="tile_label_short">No Glasses</string>
     <string name="system_write_permission">System write permission: </string>
     <string name="grant_permission">Grant permission</string>
-    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">Add the Quick Settings tile \n(pull down from top edge ▸ Edit tiles ▸ drag “No Glasses”).</string>
+    <string name="tip_add_the_quick_settings_tile_pull_down_edit_tiles_drag_no_glasses">
+Swipe down twice from the top of your screen to open all Quick Settings.\n
+Tap the ✎ (Edit) icon or “Edit tiles”.\n
+Find the “No Glasses” tile and drag it up to the active area.\n
+The tile will now appear in your Quick Settings panel.
+</string>
     <string name="pick_big_size_toggle_with_qs_tile">
         No Glasses adds a button in your phone’s pull-down panel to quickly switch between normal and large text.
 
@@ -11,7 +16,6 @@
     </string>
     <string name="label_normal">This size</string>
     <string name="label_big">Becomes this</string>
-    <string name="tile_label_prefix">No Glasses: %1$s</string>
     <string name="toast_big">Big text</string>
     <string name="toast_normal">Normal text</string>
     <string name="toast_failed">Couldn\'t change text size</string>
