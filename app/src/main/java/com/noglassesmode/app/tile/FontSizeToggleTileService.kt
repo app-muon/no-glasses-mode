@@ -26,11 +26,11 @@ class FontSizeToggleTileService : TileService() {
     private var lastState: Int? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // Write coordination
+    // Guard during write (very short)
     private var writeInProgress = false
 
-    // Tolerances & helpers
-    private val EPS = 0.02f // absorb OEM rounding (e.g., 1.299 -> 1.30)
+    // Helpers
+    private val EPS = 0.02f
     private fun approx(a: Float, b: Float) = abs(a - b) <= EPS
     private fun round2(x: Float) = round(x * 100f) / 100f
 
@@ -41,19 +41,16 @@ class FontSizeToggleTileService : TileService() {
             icon = Icon.createWithResource(this@FontSizeToggleTileService, R.drawable.ic_glasses_tile)
             label = getString(R.string.tile_label_short) // "No Glasses"
         }
-        // Synchronous, single refresh (no observers, no posts) to avoid pull-down flicker
         lastState = null
         refreshTile()
     }
 
     override fun onClick() {
         val now = android.os.SystemClock.elapsedRealtime()
-        // Debounce + ignore while writing to avoid double taps during shade motion
-        if (writeInProgress) return
-        if (now - lastClickAt < 450L) return
+        if (writeInProgress || now - lastClickAt < 450L) return
         lastClickAt = now
 
-        // If permission not granted, open our settings (step 1–3)
+        // Permission gate → open our setup screen
         if (!FontScaleManager.canWriteSettings(this)) {
             val intent = Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -81,43 +78,51 @@ class FontSizeToggleTileService : TileService() {
             else -> false
         }
 
+        // Decide target + manage baseline
         val target: Float
         val goingToBig: Boolean
         if (inBigNow && savedBaseline != null) {
-            // Big -> Normal
+            // Big → Normal
             target = savedBaseline
             goingToBig = false
         } else {
-            // Normal -> Big (snapshot baseline before write)
+            // Normal → Big (snapshot baseline first)
             prefs.baselineScale = current
             target = round2(current * m)
             goingToBig = true
         }
 
-        // Single write; then confirm and refresh once
+        // Write (optimistic)
         writeInProgress = true
         val ok = FontScaleManager.applyScale(cr, target)
+        writeInProgress = false
+
         if (!ok) {
-            writeInProgress = false
             showToast(getString(R.string.toast_failed))
-            refreshTile()
             return
         }
 
-        // Confirm after system applies & re-lays out (short wait)
+        // Trust what we wrote; update prefs immediately
+        if (goingToBig) {
+            prefs.bigAppliedScale = target
+        } else {
+            prefs.bigAppliedScale = null
+            prefs.baselineScale = null
+        }
+
+        showToast(if (goingToBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
+        refreshTile()
+
+        // Optional background verify (non-blocking); adjust only if large mismatch
         mainHandler.postDelayed({
-            val applied = FontScaleManager.getCurrentScale(cr)
-            if (goingToBig) {
-                prefs.bigAppliedScale = applied
-            } else {
-                // Returned to Normal
-                prefs.bigAppliedScale = null
-                prefs.baselineScale = null
+            val applied = FontScaleManager.getCurrentScale(contentResolver)
+            if (!approx(applied, target)) {
+                if (goingToBig) prefs.bigAppliedScale = applied
+                if (abs(applied - target) > 0.10f) {
+                    refreshTile()
+                }
             }
-            showToast(if (goingToBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
-            writeInProgress = false
-            refreshTile() // single, final update
-        }, 160L)
+        }, 500L)
     }
 
     private fun refreshTile() {
