@@ -142,16 +142,32 @@ class SettingsActivity : ComponentActivity() {
 
     private fun showAboutDialog() {
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null, false)
+
+        val versionName = try {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0)).versionName
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0).versionName
+            }
+        } catch (e: Exception) {
+            "—"
+        }
+
+        v.findViewById<TextView>(R.id.tvVersion).text =
+            getString(R.string.version_fmt, versionName)
+
         val tv = v.findViewById<TextView>(R.id.tvAbout)
         tv.text = getString(R.string.about_body)
-        tv.movementMethod = LinkMovementMethod.getInstance() // make links clickable
+        tv.movementMethod = android.text.method.LinkMovementMethod.getInstance()
 
-        MaterialAlertDialogBuilder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(R.string.about_title)
             .setView(v)
             .setPositiveButton(R.string.got_it, null)
             .show()
     }
+
 
     private val pollPermission = object : Runnable {
         override fun run() {

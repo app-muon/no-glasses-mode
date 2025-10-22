@@ -39,4 +39,5 @@ The tile will now appear in your Quick Settings panel.
 </string>
     <string name="done">Done</string>
     <string name="got_it">Got it</string>
+    <string name="version_fmt">Version %1$s</string>
 </resources>

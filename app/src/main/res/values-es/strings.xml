@@ -46,4 +46,5 @@ Sin Gafas te permite alternar entre tu tamaño de texto normal y uno más grande
 
     <string name="done">Hecho</string>
     <string name="got_it">Entendido</string>
+    <string name="version_fmt">Version %1$s</string>
 </resources>
