@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.service.quicksettings.TileService
-import android.text.method.LinkMovementMethod
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.Button
@@ -16,7 +15,6 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.noglassesmode.app.R
 import com.noglassesmode.app.core.FontScaleManager
@@ -145,7 +143,10 @@ class SettingsActivity : ComponentActivity() {
 
         val versionName = try {
             if (android.os.Build.VERSION.SDK_INT >= 33) {
-                packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0)).versionName
+                packageManager.getPackageInfo(
+                    packageName,
+                    android.content.pm.PackageManager.PackageInfoFlags.of(0)
+                ).versionName
             } else {
                 @Suppress("DEPRECATION")
                 packageManager.getPackageInfo(packageName, 0).versionName
@@ -159,7 +160,7 @@ class SettingsActivity : ComponentActivity() {
 
         val tv = v.findViewById<TextView>(R.id.tvAbout)
         tv.text = getString(R.string.about_body)
-        tv.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+        android.text.method.LinkMovementMethod.getInstance().also { tv.movementMethod = it }
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(R.string.about_title)
