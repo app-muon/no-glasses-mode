@@ -1,6 +1,7 @@
 // FontSizeToggleTileService.kt
 package com.noglassesmode.app.tile
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.*
@@ -24,10 +25,10 @@ class FontSizeToggleTileService : TileService() {
     private var verifyToken = 0          // avoid stale verify races
     private var writeInProgress = false  // cheap insurance vs rapid taps
 
-    private val EPS = 0.02f
-    private val DEBOUNCE_MS = 500L
-    private val VERIFY_DELAY_MS = 600L
-    private val NOTICEABLE_DRIFT = 0.05f // 5%
+    private val eps = 0.02f
+    private val debounceMs = 500L
+    private val verifyDelayMs = 600L
+    private val noticeableDrift = 0.05f // 5%
 
     override fun onStartListening() {
         super.onStartListening()
@@ -44,9 +45,10 @@ class FontSizeToggleTileService : TileService() {
         refreshTile()
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     override fun onClick() {
         val now = SystemClock.elapsedRealtime()
-        if (now - lastClickAt < DEBOUNCE_MS) return
+        if (now - lastClickAt < debounceMs) return
         if (writeInProgress) return
         lastClickAt = now
 
@@ -82,7 +84,7 @@ class FontSizeToggleTileService : TileService() {
         }
 
         val target = if (goingToBig) {
-            // Use (possibly re-snapshotted) baseline × multiplier
+            // Use (possibly a new snapshot) baseline × multiplier
             val base = prefs.baselineScale ?: current
             round2(base * m)
         } else {
@@ -141,11 +143,11 @@ class FontSizeToggleTileService : TileService() {
                 // If we intended to go Big, record actual Big value (rounded by system/OEM)
                 if (goingToBig) prefs.bigAppliedScale = applied
                 // Only refresh UI if drift is visually noticeable
-                if (drift > NOTICEABLE_DRIFT) {
+                if (drift > noticeableDrift) {
                     refreshTile()
                 }
             }
-        }, VERIFY_DELAY_MS)
+        }, verifyDelayMs)
     }
 
     private fun refreshTile() {
@@ -175,19 +177,27 @@ class FontSizeToggleTileService : TileService() {
         return savedBig != null && base == null && approx(current, savedBig)
     }
 
-    private fun approx(a: Float, b: Float) = abs(a - b) <= EPS
+    private fun approx(a: Float, b: Float) = abs(a - b) <= eps
     private fun round2(x: Float) = round(x * 100f) / 100f
 
+    @SuppressLint("MissingPermission")
     private fun lightHaptic() {
-        // Let system/no-vibrator paths noop
-        if (Build.VERSION.SDK_INT >= 31) {
-            val vm = getSystemService(VibratorManager::class.java)
-            vm?.defaultVibrator?.vibrate(
-                VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK)
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            (getSystemService(VIBRATOR_SERVICE) as? Vibrator)?.vibrate(10)
+        try {
+            if (Build.VERSION.SDK_INT >= 31) {
+                val vm = getSystemService(VibratorManager::class.java) ?: return
+                val vib = vm.defaultVibrator
+                if (vib.hasVibrator()) {
+                    vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                (getSystemService(VIBRATOR_SERVICE) as? Vibrator)?.let { vib ->
+                    if (vib.hasVibrator()) vib.vibrate(10)
+                }
+            }
+        } catch (_: SecurityException) {
+            // no-op: missing permission on some OEMs
         }
     }
+
 }
