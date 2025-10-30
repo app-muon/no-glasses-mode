@@ -1,11 +1,9 @@
+// FontSizeToggleTileService.kt
 package com.noglassesmode.app.tile
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.graphics.drawable.Icon
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -13,49 +11,53 @@ import android.widget.Toast
 import com.noglassesmode.app.R
 import com.noglassesmode.app.core.FontScaleManager
 import com.noglassesmode.app.data.UserPrefs
-import com.noglassesmode.app.ui.SettingsActivity
 import kotlin.math.abs
 import kotlin.math.round
 
 class FontSizeToggleTileService : TileService() {
 
     private val prefs by lazy { UserPrefs(this) }
-
-    // Debounce + state cache
-    private var lastClickAt = 0L
-    private var lastState: Int? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // Guard during write (very short)
-    private var writeInProgress = false
+    private var lastClickAt = 0L
+    private var lastState: Int? = null
+    private var verifyToken = 0          // avoid stale verify races
+    private var writeInProgress = false  // cheap insurance vs rapid taps
 
-    // Helpers
     private val EPS = 0.02f
-    private fun approx(a: Float, b: Float) = abs(a - b) <= EPS
-    private fun round2(x: Float) = round(x * 100f) / 100f
+    private val DEBOUNCE_MS = 500L
+    private val VERIFY_DELAY_MS = 600L
+    private val NOTICEABLE_DRIFT = 0.05f // 5%
 
     override fun onStartListening() {
         super.onStartListening()
-        // Fixed visuals (icon + label never change)
         qsTile?.apply {
-            icon = Icon.createWithResource(this@FontSizeToggleTileService, R.drawable.ic_glasses_tile)
-            label = getString(R.string.tile_label_short) // "No Glasses"
+            icon = android.graphics.drawable.Icon.createWithResource(
+                this@FontSizeToggleTileService, R.drawable.ic_glasses_tile
+            )
+            label = getString(R.string.tile_label_short)
         }
-        lastState = null
+        // First run: treat current as baseline “Normal” if we have no state yet.
+        if (prefs.baselineScale == null && prefs.bigAppliedScale == null) {
+            prefs.baselineScale = FontScaleManager.getCurrentScale(contentResolver)
+        }
         refreshTile()
     }
 
     override fun onClick() {
-        val now = android.os.SystemClock.elapsedRealtime()
-        if (writeInProgress || now - lastClickAt < 450L) return
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastClickAt < DEBOUNCE_MS) return
+        if (writeInProgress) return
         lastClickAt = now
 
-        // Permission gate → open our setup screen
-        if (!FontScaleManager.canWriteSettings(this)) {
-            val intent = Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // Permission gate
+        if (!Settings.System.canWrite(applicationContext)) {
+            val intent = Intent(this, com.noglassesmode.app.ui.SettingsActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 val pi = PendingIntent.getActivity(
-                    this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    this, 0, intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
                 startActivityAndCollapse(pi)
             } else {
@@ -68,89 +70,124 @@ class FontSizeToggleTileService : TileService() {
         val current = FontScaleManager.getCurrentScale(cr)
         val m = 1f + (prefs.bigPercent / 100f)
 
-        // Detect Big
-        val savedBaseline = prefs.baselineScale
-        val savedBig = prefs.bigAppliedScale
-        val expectedFromBaseline = savedBaseline?.let { round2(it * m) }
-        val inBigNow = when {
-            savedBig != null -> approx(current, savedBig)
-            expectedFromBaseline != null -> approx(current, expectedFromBaseline)
-            else -> false
+        val inBigNow = isBigNow(current, m)
+        val goingToBig = !inBigNow
+
+        // (1) Re-snapshot baseline on toggle-to-Big if user changed “Normal” externally
+        if (goingToBig && prefs.bigAppliedScale == null) {
+            val storedBase = prefs.baselineScale
+            if (storedBase == null || !approx(current, storedBase)) {
+                prefs.baselineScale = current
+            }
         }
 
-        // Decide target + manage baseline
-        val target: Float
-        val goingToBig: Boolean
-        if (inBigNow && savedBaseline != null) {
-            // Big → Normal
-            target = savedBaseline
-            goingToBig = false
+        val target = if (goingToBig) {
+            // Use (possibly re-snapshotted) baseline × multiplier
+            val base = prefs.baselineScale ?: current
+            round2(base * m)
         } else {
-            // Normal → Big (snapshot baseline first)
-            prefs.baselineScale = current
-            target = round2(current * m)
-            goingToBig = true
+            // Return to stored baseline; keep it as the long-term anchor
+            val base = prefs.baselineScale
+            if (base == null) {
+                Toast.makeText(this, getString(R.string.toast_state_error), Toast.LENGTH_SHORT).show()
+                refreshTile()
+                return
+            }
+            base
         }
 
-        // Write (optimistic)
+        val thisToken = ++verifyToken
+
+        // Apply scale
         writeInProgress = true
-        val ok = FontScaleManager.applyScale(cr, target)
-        writeInProgress = false
+        val ok = try {
+            FontScaleManager.applyScale(cr, target)
+        } finally {
+            writeInProgress = false
+        }
 
         if (!ok) {
-            showToast(getString(R.string.toast_failed))
+            Toast.makeText(this, getString(R.string.toast_failed), Toast.LENGTH_SHORT).show()
+            refreshTile()
             return
         }
 
-        // Trust what we wrote; update prefs immediately
+        // Haptic only on success (avoid haptic on permission/failed paths)
+        lightHaptic()
+
+        // Update prefs for intended state
         if (goingToBig) {
             prefs.bigAppliedScale = target
+            // baselineScale already set/validated above; keep it
         } else {
+            // Big → Normal: clear Big marker ONLY; keep baseline as anchor
             prefs.bigAppliedScale = null
-            prefs.baselineScale = null
         }
 
-        showToast(if (goingToBig) getString(R.string.toast_big) else getString(R.string.toast_normal))
-        refreshTile()
+        // Optimistic tile update, then toast
+        setTileState(if (goingToBig) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE)
+        Toast.makeText(
+            this,
+            if (goingToBig) getString(R.string.toast_big) else getString(R.string.toast_normal),
+            Toast.LENGTH_SHORT
+        ).show()
 
-        // Optional background verify (non-blocking); adjust only if large mismatch
+        // Verify later; ignore if a newer click happened
         mainHandler.postDelayed({
-            val applied = FontScaleManager.getCurrentScale(contentResolver)
+            if (thisToken != verifyToken) return@postDelayed
+            val applied = FontScaleManager.getCurrentScale(cr)
             if (!approx(applied, target)) {
+                val drift = abs(applied - target)
+                // If we intended to go Big, record actual Big value (rounded by system/OEM)
                 if (goingToBig) prefs.bigAppliedScale = applied
-                if (abs(applied - target) > 0.10f) {
+                // Only refresh UI if drift is visually noticeable
+                if (drift > NOTICEABLE_DRIFT) {
                     refreshTile()
                 }
             }
-        }, 500L)
+        }, VERIFY_DELAY_MS)
     }
 
     private fun refreshTile() {
-        val tile = qsTile ?: return
-
-        val hasPerm = Settings.System.canWrite(applicationContext)
         val cr = contentResolver
         val current = FontScaleManager.getCurrentScale(cr)
         val m = 1f + (prefs.bigPercent / 100f)
 
-        val savedBaseline = prefs.baselineScale
-        val savedBig = prefs.bigAppliedScale
-        val expectedFromBaseline = savedBaseline?.let { round2(it * m) }
-
-        val isBig = hasPerm && when {
-            savedBig != null -> approx(current, savedBig)
-            expectedFromBaseline != null -> approx(current, expectedFromBaseline)
-            else -> false
-        }
-
-        val newState = if (isBig) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        if (lastState == newState) return
-
-        lastState = newState
-        tile.state = newState
-        tile.updateTile()
+        // (3) Prioritise expected-from-baseline; only use savedBig if baseline missing
+        val newState = if (isBigNow(current, m)) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+        if (lastState != newState) setTileState(newState)
     }
 
-    private fun showToast(msg: String) =
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun setTileState(state: Int) {
+        lastState = state
+        qsTile?.let { tile ->
+            tile.state = state
+            tile.updateTile()
+        }
+    }
+
+    // Prioritise baseline×m; fall back to savedBig only if baseline is null.
+    private fun isBigNow(current: Float, m: Float): Boolean {
+        val base = prefs.baselineScale
+        val expected = base?.let { round2(it * m) }
+        if (expected != null && approx(current, expected)) return true
+        val savedBig = prefs.bigAppliedScale
+        return savedBig != null && base == null && approx(current, savedBig)
+    }
+
+    private fun approx(a: Float, b: Float) = abs(a - b) <= EPS
+    private fun round2(x: Float) = round(x * 100f) / 100f
+
+    private fun lightHaptic() {
+        // Let system/no-vibrator paths noop
+        if (Build.VERSION.SDK_INT >= 31) {
+            val vm = getSystemService(VibratorManager::class.java)
+            vm?.defaultVibrator?.vibrate(
+                VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK)
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            (getSystemService(VIBRATOR_SERVICE) as? Vibrator)?.vibrate(10)
+        }
+    }
 }

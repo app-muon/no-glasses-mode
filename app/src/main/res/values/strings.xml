@@ -40,4 +40,5 @@ The tile will now appear in your Quick Settings panel.
     <string name="done">Done</string>
     <string name="got_it">Got it</string>
     <string name="version_fmt">Version %1$s</string>
+    <string name="toast_state_error">Normal font size not set. Open the app to set it.</string>
 </resources>

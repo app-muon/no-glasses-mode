@@ -47,4 +47,6 @@ Sin Gafas te permite alternar entre tu tamaño de texto normal y uno más grande
     <string name="done">Hecho</string>
     <string name="got_it">Entendido</string>
     <string name="version_fmt">Version %1$s</string>
+    <string name="toast_state_error">El tamaño de fuente normal no está configurado. Abre la app para configurarlo.</string>
+
 </resources>
